@@ -21,4 +21,31 @@ contract TaskContract {
         tasks.push(Task(taskId, taskText, isDeleted));
         emit AddTodo(msg.sender, taskId);
     }
+
+    function getTasks() external view returns (Task[] memory) {
+        Task[] memory temp = new Task[](tasks.length);
+        uint256 counter = 0;
+        // filtering process
+        for (uint256 i = 0; i < tasks.length; i++) {
+            if (taskToOwner[i] == msg.sender) {
+                temp[counter] = tasks[i];
+                counter++;
+            }
+        }
+
+        // saving it in another array, with length after its obtained precisely by filtering above
+        Task[] memory result = new Task[](counter);
+        for (uint256 i = 0; i < counter; i++) {
+            result[i] = temp[i];
+        }
+
+        return result;
+    }
+
+    function deleteTask(uint256 taskId, bool isDeleted) external {
+        if (taskToOwner[taskId] == msg.sender) {
+            tasks[taskId].isDeleted = isDeleted;
+            emit DeleteTask(taskId, isDeleted);
+        }
+    }
 }
